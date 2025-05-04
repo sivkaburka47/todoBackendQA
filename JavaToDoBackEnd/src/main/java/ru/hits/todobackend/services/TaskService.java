@@ -20,6 +20,7 @@ import ru.hits.todobackend.repository.TaskRepository;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -139,31 +140,56 @@ public class TaskService {
     }
 
     public TaskDTO updateTask(UUID id, UpdateTaskDTO updateTaskDto) {
+        if (updateTaskDto == null) {
+            throw new BadRequestException("UpdateTaskDTO cannot be null");
+        }
 
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Task not found with id: " + id));
 
-        if (updateTaskDto.getDeadline() != null
-                && updateTaskDto.getDeadline().isBefore(task.getCreatedAt())) {
-            throw new BadRequestException("Deadline cannot be before creation time");
-        }
-
-
         if (updateTaskDto.getTitle() != null) {
-            task.setTitle(updateTaskDto.getTitle());
+            TitleMacroResult macroResult = processTitleMacros(updateTaskDto.getTitle());
+
+            if (macroResult.cleanedTitle.length() < 4) {
+                throw new BadRequestException("Title must be at least 4 characters long (excluding macros)");
+            }
+
+            task.setTitle(macroResult.cleanedTitle);
+
+            if (updateTaskDto.getPriority() != null) {
+                task.setPriority(updateTaskDto.getPriority());
+            } else if (macroResult.macroPriority != null) {
+                task.setPriority(macroResult.macroPriority);
+            }
+
+            if (updateTaskDto.getDeadline() != null) {
+                if (updateTaskDto.getDeadline().isBefore(task.getCreatedAt())) {
+                    throw new BadRequestException("Deadline cannot be before creation time");
+                }
+                task.setDeadline(updateTaskDto.getDeadline());
+            } else if (macroResult.macroDeadline != null) {
+                if (macroResult.macroDeadline.isBefore(task.getCreatedAt())) {
+                    throw new BadRequestException("Deadline from title cannot be before creation time");
+                }
+                task.setDeadline(macroResult.macroDeadline);
+            }
+        } else {
+            if (updateTaskDto.getDeadline() != null) {
+                if (updateTaskDto.getDeadline().isBefore(task.getCreatedAt())) {
+                    throw new BadRequestException("Deadline cannot be before creation time");
+                }
+                task.setDeadline(updateTaskDto.getDeadline());
+            }
+            if (updateTaskDto.getPriority() != null) {
+                task.setPriority(updateTaskDto.getPriority());
+            }
         }
+
         if (updateTaskDto.getDescription() != null) {
             task.setDescription(updateTaskDto.getDescription());
         }
-        if (updateTaskDto.getStatus() != null) {
-            task.setStatus(updateTaskDto.getStatus());
-        }
-        if (updateTaskDto.getPriority() != null) {
-            task.setPriority(updateTaskDto.getPriority());
-        }
-        if (updateTaskDto.getDeadline() != null) {
-            task.setDeadline(updateTaskDto.getDeadline());
-        }
+
+        task.setUpdatedAt(OffsetDateTime.now().withOffsetSameInstant(ZoneOffset.UTC));
 
         Task updatedTask = taskRepository.save(task);
         return convertToDTO(updatedTask);

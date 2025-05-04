@@ -13,11 +13,8 @@ import java.util.UUID;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UpdateTaskDTO {
-
     String title;
     String description;
-    Status status;
     Priority priority;
     OffsetDateTime deadline;
-
 }
