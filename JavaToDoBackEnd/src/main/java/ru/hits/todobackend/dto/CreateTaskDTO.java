@@ -1,6 +1,7 @@
 package ru.hits.todobackend.dto;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
@@ -14,13 +15,10 @@ public class CreateTaskDTO {
     @NotNull
     String title;
 
-    @NotNull
     String description;
 
-    @NotNull
     Priority priority;
 
-    @NotNull
     OffsetDateTime deadline;
 
 }

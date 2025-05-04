@@ -1,6 +1,5 @@
 package ru.hits.todobackend.services;
 
-import jakarta.validation.Valid;
 import org.springframework.data.domain.Sort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
@@ -18,9 +17,15 @@ import ru.hits.todobackend.exception.BadRequestException;
 import ru.hits.todobackend.exception.NotFoundException;
 import ru.hits.todobackend.repository.TaskRepository;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,16 +33,105 @@ import java.util.stream.Collectors;
 public class TaskService {
     private final TaskRepository taskRepository;
 
+    private static class TitleMacroResult {
+        String cleanedTitle;
+        Priority macroPriority;
+        OffsetDateTime macroDeadline;
+
+        TitleMacroResult(String cleanedTitle, Priority macroPriority, OffsetDateTime macroDeadline) {
+            this.cleanedTitle = cleanedTitle;
+            this.macroPriority = macroPriority;
+            this.macroDeadline = macroDeadline;
+        }
+    }
+
+    private TitleMacroResult processTitleMacros(String title) {
+        String cleanedTitle = title;
+        Priority macroPriority = null;
+        OffsetDateTime macroDeadline = null;
+
+        Pattern priorityPattern = Pattern.compile("!1|!2|!3|!4");
+        Pattern deadlinePattern = Pattern.compile("!before\\s+(\\d{2}[.-]\\d{2}[.-]\\d{4})");
+
+        Matcher priorityMatcher = priorityPattern.matcher(cleanedTitle);
+        if (priorityMatcher.find()) {
+            String macro = priorityMatcher.group();
+            switch (macro) {
+                case "!1":
+                    macroPriority = Priority.CRITICAL;
+                    break;
+                case "!2":
+                    macroPriority = Priority.HIGH;
+                    break;
+                case "!3":
+                    macroPriority = Priority.MEDIUM;
+                    break;
+                case "!4":
+                    macroPriority = Priority.LOW;
+                    break;
+            }
+            cleanedTitle = priorityMatcher.replaceFirst("").trim();
+        }
+
+        Matcher deadlineMatcher = deadlinePattern.matcher(cleanedTitle);
+        if (deadlineMatcher.find()) {
+            String dateStr = deadlineMatcher.group(1).replace("-", ".");
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+                macroDeadline = LocalDate.parse(dateStr, formatter)
+                        .atStartOfDay(ZoneId.systemDefault())
+                        .toOffsetDateTime();
+            } catch (DateTimeParseException e) {
+                throw new BadRequestException("Invalid deadline format in title. Use DD.MM.YYYY or DD-MM-YYYY");
+            }
+            cleanedTitle = deadlineMatcher.replaceFirst("").trim();
+        }
+
+        return new TitleMacroResult(cleanedTitle, macroPriority, macroDeadline);
+    }
+
     public TaskDTO createTask(CreateTaskDTO taskDTO) {
-        if (taskDTO.getDeadline().isBefore(OffsetDateTime.now())) {
-            throw new BadRequestException("Deadline cannot be before the current time");
+        if (taskDTO == null) {
+            throw new BadRequestException("Task DTO cannot be null");
+        }
+
+        String title = taskDTO.getTitle();
+        if (title == null) {
+            throw new BadRequestException("Title cannot be null");
+        }
+        TitleMacroResult macroResult = processTitleMacros(title);
+
+        if (macroResult.cleanedTitle.length() < 4) {
+            throw new BadRequestException("Title must be at least 4 characters long (excluding macros)");
         }
 
         Task task = new Task();
-        task.setTitle(taskDTO.getTitle());
-        task.setDescription(taskDTO.getDescription());
-        task.setPriority(taskDTO.getPriority());
-        task.setDeadline(taskDTO.getDeadline());
+        task.setTitle(macroResult.cleanedTitle);
+
+        if (taskDTO.getDescription() != null) {
+            task.setDescription(taskDTO.getDescription());
+        }
+
+        if (taskDTO.getPriority() != null) {
+            task.setPriority(taskDTO.getPriority());
+        } else if (macroResult.macroPriority != null) {
+            task.setPriority(macroResult.macroPriority);
+        } else {
+            task.setPriority(Priority.MEDIUM);
+        }
+
+        if (taskDTO.getDeadline() != null) {
+            if (taskDTO.getDeadline().isBefore(OffsetDateTime.now())) {
+                throw new BadRequestException("Deadline cannot be before the current time");
+            }
+            task.setDeadline(taskDTO.getDeadline());
+        } else if (macroResult.macroDeadline != null) {
+            if (macroResult.macroDeadline.isBefore(OffsetDateTime.now())) {
+                throw new BadRequestException("Deadline from title cannot be before the current time");
+            }
+            task.setDeadline(macroResult.macroDeadline);
+        }
+
         task.setStatus(Status.ACTIVE);
 
         Task savedTask = taskRepository.save(task);
@@ -75,6 +169,8 @@ public class TaskService {
         return convertToDTO(updatedTask);
     }
 
+
+
     public void deleteTask(UUID id) {
         if (!taskRepository.existsById(id)) {
             throw new NotFoundException("Task not found with id: " + id);
@@ -90,10 +186,8 @@ public class TaskService {
             SortField sortBy,
             SortDirection direction
     ) {
-        // Создаем объект сортировки
         Sort sort = createSort(sortBy, direction);
 
-        // Строим спецификацию для фильтрации
         Specification<Task> spec = buildSpecification(
                 status,
                 priority,
@@ -101,7 +195,6 @@ public class TaskService {
                 deadlineTo
         );
 
-        // Выполняем запрос с фильтрацией и сортировкой
         return taskRepository.findAll(spec, sort)
                 .stream()
                 .map(this::convertToDTO)

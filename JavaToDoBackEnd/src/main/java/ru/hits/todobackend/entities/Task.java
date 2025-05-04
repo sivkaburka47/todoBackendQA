@@ -25,10 +25,10 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "task_name", length = 255)
+    @Column(name = "task_title", length = 255)
     private String title;
 
-    @Column(name = "task_description", length = 255)
+    @Column(name = "task_description", nullable = true, length = 255)
     private String description;
 
     @Enumerated(EnumType.STRING)
@@ -39,7 +39,7 @@ public class Task {
     @Column(name = "priority", nullable = false)
     private Priority priority;
 
-    @Column(name = "deadline_date", nullable = false, columnDefinition = "TIMESTAMPTZ")
+    @Column(name = "deadline_date", nullable = true, columnDefinition = "TIMESTAMPTZ")
     private OffsetDateTime deadline;
 
     @CreationTimestamp
