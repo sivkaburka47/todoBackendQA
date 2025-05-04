@@ -16,6 +16,8 @@ protocol TaskService {
             sortBy: SortField,
             direction: SortDirection
         ) async throws -> [TaskEntity]
+
+    func deleteTask(id: UUID) async throws
 }
 
 class APITaskService: TaskService {
@@ -43,4 +45,9 @@ class APITaskService: TaskService {
             )
             return try await httpClient.sendRequest(endpoint: endpoint, requestBody: nil as EmptyRequestModel?)
         }
+
+    func deleteTask(id: UUID) async throws {
+        let endpoint = DeleteTaskEndpoint(id: id)
+        try await httpClient.sendRequestWithoutResponse(endpoint: endpoint, requestBody: nil as EmptyRequestModel?)
+    }
 }

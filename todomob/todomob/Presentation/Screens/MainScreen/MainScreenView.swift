@@ -195,7 +195,7 @@ extension MainScreenView {
                     .listRowSeparatorTint(.gray.opacity(0.2))
                     .swipeActions(edge: .trailing) {
                         Button(role: .destructive) {
-//                            Task { await viewModel.deleteTask(task) }
+                            Task { await viewModel.deleteTask(task) }
                         } label: {
                             Label("Удалить", systemImage: "trash")
                         }

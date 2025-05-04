@@ -50,4 +50,18 @@ class MainViewModel: ObservableObject {
         }
         isLoading = false
     }
+
+    @MainActor
+    func deleteTask(_ task: TaskEntity) async {
+        do {
+            try await taskService.deleteTask(id: task.id)
+        } catch {
+            print("Delete error: \(error)")
+            errorMessage = "Ошибка удаления: \(error.localizedDescription)"
+        }
+
+        Task {
+            await self.fetchTasks()
+        }
+    }
 }
