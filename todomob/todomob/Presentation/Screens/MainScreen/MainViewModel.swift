@@ -64,4 +64,18 @@ class MainViewModel: ObservableObject {
             await self.fetchTasks()
         }
     }
+
+    @MainActor
+    func toggleTask(_ task: TaskEntity) async {
+        do {
+            try await taskService.toggleTask(id: task.id)
+        } catch {
+            print("Toggle status error: \(error)")
+            errorMessage = "Ошибка переключения статуса: \(error.localizedDescription)"
+        }
+
+        Task {
+            await self.fetchTasks()
+        }
+    }
 }

@@ -64,6 +64,7 @@ extension MainScreenView {
 
     private struct TaskRow: View {
         let task: TaskEntity
+        @ObservedObject var viewModel: MainViewModel
         @Environment(\.colorScheme) private var colorScheme
 
         private var deadlineColor: Color? {
@@ -83,8 +84,8 @@ extension MainScreenView {
              VStack(alignment: .leading, spacing: 12) {
                  HStack(alignment: .top, spacing: 12) {
                      Button(action: {
-                         withAnimation(.spring()) {
-                             // await viewModel.toggleTask(task)
+                         Task {
+                             await viewModel.toggleTask(task)
                          }
                      }) {
                          ZStack {
@@ -190,7 +191,7 @@ extension MainScreenView {
     private var listContent: some View {
         List {
             ForEach(viewModel.tasks) { task in
-                TaskRow(task: task)
+                TaskRow(task: task, viewModel: viewModel)
                     .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                     .listRowSeparatorTint(.gray.opacity(0.2))
                     .swipeActions(edge: .trailing) {
