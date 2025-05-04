@@ -38,12 +38,19 @@ public class TaskController {
         return new ResponseEntity<>(createdTask, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
-    public TaskDTO updateTask(@PathVariable UUID id, @Valid @RequestBody UpdateTaskDTO updateTaskDto) {
-        return taskService.updateTask(id, updateTaskDto);
+    @PutMapping("/{id}/update")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateTask(@PathVariable UUID id, @Valid @RequestBody UpdateTaskDTO updateTaskDto) {
+        taskService.updateTask(id, updateTaskDto);
     }
 
-    @DeleteMapping("/{id}")
+    @PatchMapping("/{id}/toggle")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void toggleTaskStatus( @PathVariable UUID id) {
+        taskService.toggleTask(id);
+    }
+
+    @DeleteMapping("/{id}/delete")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTask(@PathVariable UUID id) {
         taskService.deleteTask(id);

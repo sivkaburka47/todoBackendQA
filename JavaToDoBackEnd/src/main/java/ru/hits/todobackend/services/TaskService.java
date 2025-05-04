@@ -139,7 +139,33 @@ public class TaskService {
         return convertToDTO(savedTask);
     }
 
-    public TaskDTO updateTask(UUID id, UpdateTaskDTO updateTaskDto) {
+    public void toggleTask(UUID id) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Task not found with id: " + id));
+
+        switch (task.getStatus()) {
+            case ACTIVE:
+                task.setStatus(Status.COMPLETED);
+                break;
+            case COMPLETED:
+                task.setStatus(Status.ACTIVE);
+                break;
+            case OVERDUE:
+                task.setStatus(Status.LATE);
+                break;
+            case LATE:
+                task.setStatus(Status.OVERDUE);
+                break;
+            default:
+                throw new BadRequestException("Task status does not support toggling");
+        }
+
+        task.setUpdatedAt(OffsetDateTime.now().withOffsetSameInstant(ZoneOffset.UTC));
+
+        taskRepository.save(task);
+    }
+
+    public void updateTask(UUID id, UpdateTaskDTO updateTaskDto) {
         if (updateTaskDto == null) {
             throw new BadRequestException("UpdateTaskDTO cannot be null");
         }
@@ -191,8 +217,7 @@ public class TaskService {
 
         task.setUpdatedAt(OffsetDateTime.now().withOffsetSameInstant(ZoneOffset.UTC));
 
-        Task updatedTask = taskRepository.save(task);
-        return convertToDTO(updatedTask);
+        taskRepository.save(task);
     }
 
 

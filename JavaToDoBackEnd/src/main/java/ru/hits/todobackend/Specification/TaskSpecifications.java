@@ -35,4 +35,12 @@ public class TaskSpecifications {
             return cb.lessThanOrEqualTo(root.get("deadline"), to);
         };
     }
+
+    public static Specification<Task> deadlineBefore(OffsetDateTime deadline) {
+        return (root, query, cb) -> deadline == null ? null :
+                cb.and(
+                        cb.isNotNull(root.get("deadline")),
+                        cb.lessThan(root.get("deadline"), deadline)
+                );
+    }
 }
