@@ -17,13 +17,24 @@ final class AlamofireHTTPClient: HTTPClient {
     }
 
 
-    func sendRequest<T: Decodable, U: Encodable>(endpoint: APIEndpoint, requestBody: U? = nil) async throws -> T {
+    func sendRequest<T: Decodable, U: Encodable>(
+        endpoint: APIEndpoint,
+        requestBody: U? = nil
+    ) async throws -> T {
         let url = baseURL.baseURL + endpoint.path
         let method = endpoint.method
         let headers = endpoint.headers
 
         return try await withCheckedThrowingContinuation { continuation in
-            AF.request(url, method: method, parameters: endpoint.parameters, headers: headers)
+            var request: DataRequest
+
+            if method == .get {
+                request = AF.request(url, method: method, parameters: endpoint.parameters, headers: headers)
+            } else {
+                request = AF.request(url, method: method, parameters: requestBody,     encoder: JSONParameterEncoder(encoder: iso8601Encoder), headers: headers)
+            }
+
+            request
                 .validate()
                 .response { response in
                     self.log(response)
@@ -33,11 +44,17 @@ final class AlamofireHTTPClient: HTTPClient {
                     case .success(let decodedData):
                         continuation.resume(returning: decodedData)
                     case .failure(let error):
-                        continuation.resume(throwing: error)
+                        if let data = response.data,
+                           let apiError = try? JSONDecoder().decode(APIErrorResponse.self, from: data) {
+                            continuation.resume(throwing: APIError.server(message: apiError.message))
+                        } else {
+                            continuation.resume(throwing: error)
+                        }
                     }
                 }
         }
     }
+
 
 
     func sendRequestWithoutResponse<U: Encodable>(endpoint: APIEndpoint, requestBody: U? = nil) async throws {
@@ -53,7 +70,12 @@ final class AlamofireHTTPClient: HTTPClient {
                     case .success:
                         continuation.resume()
                     case .failure(let error):
-                        continuation.resume(throwing: error)
+                        if let data = response.data,
+                           let apiError = try? JSONDecoder().decode(APIErrorResponse.self, from: data) {
+                            continuation.resume(throwing: APIError.server(message: apiError.message))
+                        } else {
+                            continuation.resume(throwing: error)
+                        }
                     }
                 }
         }
@@ -61,6 +83,12 @@ final class AlamofireHTTPClient: HTTPClient {
 
     
 }
+
+private let iso8601Encoder: JSONEncoder = {
+    let encoder = JSONEncoder()
+    encoder.dateEncodingStrategy = .iso8601
+    return encoder
+}()
 
 private let iso8601Decoder: JSONDecoder = {
     let decoder = JSONDecoder()

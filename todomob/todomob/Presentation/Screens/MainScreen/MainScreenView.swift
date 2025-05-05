@@ -46,11 +46,11 @@ struct MainScreenView: View {
             }, content: {
                 FilterSortView(viewModel: viewModel)
             })
-//            .sheet(isPresented: $showAddTask, onDismiss: {
-//                Task { await viewModel.fetchTasks() }
-//            }, content: {
-//                AddTaskView(viewModel: viewModel)
-//            })
+            .sheet(isPresented: $showAddTask, onDismiss: {
+                Task { await viewModel.fetchTasks() }
+            }, content: {
+                AddTaskScreenView()
+            })
             .onAppear {
                 Task {
                     await viewModel.fetchTasks()
