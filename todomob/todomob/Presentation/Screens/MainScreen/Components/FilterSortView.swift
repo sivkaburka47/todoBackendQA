@@ -73,8 +73,8 @@ struct FilterSortView: View {
                     .pickerStyle(.menu)
 
                     Picker("Направление", selection: $viewModel.selectedSortDirection) {
-                        Text("По возрастанию").tag(SortDirection.asc)
                         Text("По убыванию").tag(SortDirection.desc)
+                        Text("По возрастанию").tag(SortDirection.asc)
                     }
                     .pickerStyle(.menu)
                 }

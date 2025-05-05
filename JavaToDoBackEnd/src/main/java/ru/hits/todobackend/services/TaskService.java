@@ -24,6 +24,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -173,6 +174,10 @@ public class TaskService {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Task not found with id: " + id));
 
+        OffsetDateTime originalDeadline = task.getDeadline();
+        Status originalStatus = task.getStatus();
+        OffsetDateTime originalUpdatedAt = task.getUpdatedAt();
+
         if (updateTaskDto.getTitle() != null) {
             TitleMacroResult macroResult = processTitleMacros(updateTaskDto.getTitle());
 
@@ -186,6 +191,8 @@ public class TaskService {
                 task.setPriority(updateTaskDto.getPriority());
             } else if (macroResult.macroPriority != null) {
                 task.setPriority(macroResult.macroPriority);
+            } else {
+                task.setPriority(Priority.MEDIUM);
             }
 
             if (updateTaskDto.getDeadline() != null) {
@@ -198,21 +205,41 @@ public class TaskService {
                     throw new BadRequestException("Deadline from title cannot be before creation time");
                 }
                 task.setDeadline(macroResult.macroDeadline);
+            } else {
+                task.setDeadline(null);
             }
         } else {
-            if (updateTaskDto.getDeadline() != null) {
-                if (updateTaskDto.getDeadline().isBefore(task.getCreatedAt())) {
-                    throw new BadRequestException("Deadline cannot be before creation time");
-                }
-                task.setDeadline(updateTaskDto.getDeadline());
+            if (updateTaskDto.getDeadline().isBefore(task.getCreatedAt())) {
+                throw new BadRequestException("Deadline cannot be before creation time");
             }
-            if (updateTaskDto.getPriority() != null) {
-                task.setPriority(updateTaskDto.getPriority());
-            }
+            task.setDeadline(updateTaskDto.getDeadline());
+
+            task.setPriority(updateTaskDto.getPriority());
         }
 
-        if (updateTaskDto.getDescription() != null) {
-            task.setDescription(updateTaskDto.getDescription());
+        task.setDescription(updateTaskDto.getDescription());
+        
+        boolean deadlineChanged = !Objects.equals(task.getDeadline(), originalDeadline);
+
+        if (deadlineChanged) {
+            if (originalStatus == Status.COMPLETED || originalStatus == Status.LATE) {
+                if (task.getDeadline() != null && originalUpdatedAt.isAfter(task.getDeadline())) {
+                    task.setStatus(Status.LATE);
+                } else {
+                    task.setStatus(Status.COMPLETED);
+                }
+            } else {
+                if (task.getDeadline() == null) {
+                    task.setStatus(Status.ACTIVE);
+                } else {
+                    OffsetDateTime now = OffsetDateTime.now();
+                    if (now.isAfter(task.getDeadline())) {
+                        task.setStatus(Status.OVERDUE);
+                    } else {
+                        task.setStatus(Status.ACTIVE);
+                    }
+                }
+            }
         }
 
         task.setUpdatedAt(OffsetDateTime.now().withOffsetSameInstant(ZoneOffset.UTC));
@@ -288,4 +315,6 @@ public class TaskService {
         dto.setUpdatedAt(entity.getUpdatedAt());
         return dto;
     }
+
+
 }

@@ -20,7 +20,7 @@ extension Status {
         case .active: return "Активная"
         case .completed: return "Завершённая"
         case .overdue: return "Просроченная"
-        case .late: return "Отложенная"
+        case .late: return "Завершена с опозданием"
         }
     }
 

@@ -160,7 +160,7 @@ extension MainScreenView {
                  VStack(alignment: .leading, spacing: 12) {
                      if let deadline = task.deadline {
                          InfoBadgeDeadline(
-                             text: "Дедлайн: \(deadline.formatted(date: .abbreviated, time: .shortened))"
+                             text: "Дедлайн: \(deadline.formatted(date: .numeric, time: .shortened))"
                          )
                      } else {
                          InfoBadgeDeadline(
