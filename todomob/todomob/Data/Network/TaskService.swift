@@ -22,6 +22,10 @@ protocol TaskService {
     func toggleTask(id: UUID) async throws
 
     func createTask(title: String, description: String?, priority: Priority?, deadline: Date?) async throws -> TaskEntity
+
+    func updateTask(id: UUID, title: String?, description: String?, priority: Priority?, deadline: Date?) async throws
+
+    func getTaskById(id: UUID) async throws -> TaskEntity
 }
 
 class APITaskService: TaskService {
@@ -69,5 +73,21 @@ class APITaskService: TaskService {
                 deadline: deadline
             )
         return try await httpClient.sendRequest(endpoint: endpoint, requestBody: entity)
+    }
+
+    func updateTask(id: UUID, title: String?, description: String?, priority: Priority?, deadline: Date?) async throws {
+        let endpoint = UpdateTaskEndpoint(id: id)
+        let entity = UpdateTaskEntity(
+                title: title,
+                description: description,
+                priority: priority,
+                deadline: deadline
+            )
+        try await httpClient.sendRequestWithoutResponse(endpoint: endpoint, requestBody: entity)
+    }
+
+    func getTaskById(id: UUID) async throws -> TaskEntity {
+        let endpoint = GetTaskByIdEndpoint(id: id)
+        return try await httpClient.sendRequest(endpoint: endpoint, requestBody: nil as EmptyRequestModel?)
     }
 }

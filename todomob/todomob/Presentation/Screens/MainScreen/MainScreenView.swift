@@ -66,6 +66,7 @@ extension MainScreenView {
         let task: TaskEntity
         @ObservedObject var viewModel: MainViewModel
         @Environment(\.colorScheme) private var colorScheme
+        @State private var showEditTaskSheet = false
 
         private var deadlineColor: Color? {
             guard let deadline = task.deadline, task.status != .completed else { return nil }
@@ -185,6 +186,14 @@ extension MainScreenView {
              )
              .clipShape(RoundedRectangle(cornerRadius: 16))
              .shadow(color: .gray.opacity(colorScheme == .dark ? 0.2 : 0.1), radius: 4, x: 0, y: 2)
+             .onTapGesture {
+                 showEditTaskSheet = true
+             }
+             .sheet(isPresented: $showEditTaskSheet, onDismiss: {
+                 Task { await viewModel.fetchTasks() }
+             }, content: {
+                 UpdateTaskScreenView(taskId: task.id)
+             })
          }
     }
 

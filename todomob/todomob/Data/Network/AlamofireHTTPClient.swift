@@ -63,7 +63,7 @@ final class AlamofireHTTPClient: HTTPClient {
         let headers = endpoint.headers
 
         return try await withCheckedThrowingContinuation { continuation in
-            AF.request(url, method: method, parameters: requestBody, encoder: JSONParameterEncoder.default, headers: headers)
+            AF.request(url, method: method, parameters: requestBody, encoder: JSONParameterEncoder(encoder: iso8601Encoder), headers: headers)
                 .validate()
                 .response { response in
                     switch response.result {
