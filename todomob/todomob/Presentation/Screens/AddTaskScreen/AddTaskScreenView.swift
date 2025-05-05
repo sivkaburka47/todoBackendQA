@@ -55,7 +55,6 @@ struct AddTaskScreenView: View {
                                 get: { viewModel.deadline ?? Date() },
                                 set: { viewModel.deadline = $0 }
                             ),
-                            in: Date().addingTimeInterval(300)...,
                             displayedComponents: [.date, .hourAndMinute]
                         )
                         .datePickerStyle(.graphical)

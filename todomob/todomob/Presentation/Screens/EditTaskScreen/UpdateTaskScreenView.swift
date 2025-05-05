@@ -142,7 +142,6 @@ struct UpdateTaskScreenView: View {
                 get: { viewModel.deadline ?? Date() },
                 set: { viewModel.deadline = $0 }
             ),
-            in: Date()...,
             displayedComponents: [.date, .hourAndMinute]
         )
         .datePickerStyle(.graphical)

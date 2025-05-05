@@ -123,14 +123,8 @@ public class TaskService {
         }
 
         if (taskDTO.getDeadline() != null) {
-            if (taskDTO.getDeadline().isBefore(OffsetDateTime.now())) {
-                throw new BadRequestException("Deadline cannot be before the current time");
-            }
             task.setDeadline(taskDTO.getDeadline());
         } else if (macroResult.macroDeadline != null) {
-            if (macroResult.macroDeadline.isBefore(OffsetDateTime.now())) {
-                throw new BadRequestException("Deadline from title cannot be before the current time");
-            }
             task.setDeadline(macroResult.macroDeadline);
         }
 
@@ -196,29 +190,19 @@ public class TaskService {
             }
 
             if (updateTaskDto.getDeadline() != null) {
-                if (updateTaskDto.getDeadline().isBefore(task.getCreatedAt())) {
-                    throw new BadRequestException("Deadline cannot be before creation time");
-                }
                 task.setDeadline(updateTaskDto.getDeadline());
             } else if (macroResult.macroDeadline != null) {
-                if (macroResult.macroDeadline.isBefore(task.getCreatedAt())) {
-                    throw new BadRequestException("Deadline from title cannot be before creation time");
-                }
                 task.setDeadline(macroResult.macroDeadline);
             } else {
-                task.setDeadline(null);
+                task.setDeadline(updateTaskDto.getDeadline());
             }
         } else {
-            if (updateTaskDto.getDeadline().isBefore(task.getCreatedAt())) {
-                throw new BadRequestException("Deadline cannot be before creation time");
-            }
             task.setDeadline(updateTaskDto.getDeadline());
-
             task.setPriority(updateTaskDto.getPriority());
         }
 
         task.setDescription(updateTaskDto.getDescription());
-        
+
         boolean deadlineChanged = !Objects.equals(task.getDeadline(), originalDeadline);
 
         if (deadlineChanged) {
@@ -303,7 +287,7 @@ public class TaskService {
         return convertToDTO(task);
     }
 
-    private TaskDTO convertToDTO(Task entity) {
+    public TaskDTO convertToDTO(Task entity) {
         TaskDTO dto = new TaskDTO();
         dto.setId(entity.getId());
         dto.setTitle(entity.getTitle());
