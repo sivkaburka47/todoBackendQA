@@ -107,7 +107,7 @@ class TaskServiceTest {
     @Test
     @DisplayName("ќшибка при коротком названии (меньше 4)")
     void testCreateTask_ShortTitle_ThrowsException() {
-        baseDto.setTitle("a");
+        baseDto.setTitle("aff");
         assertThrows(BadRequestException.class, () -> taskService.createTask(baseDto));
     }
 
@@ -170,6 +170,63 @@ class TaskServiceTest {
         baseDto.setTitle("!before 99.99.9999 Invalid date");
         assertThrows(BadRequestException.class, () -> taskService.createTask(baseDto));
     }
+
+    @Test
+    @DisplayName("ќшибка при дедлайне с недопустимой датой (мес€ц > 12) ")
+    void testCreateTask_InvalidMonthInDeadlineMacro_ThrowsException() {
+        baseDto.setTitle("!before 31.13.2025 Invalid month");
+        assertThrows(BadRequestException.class, () -> taskService.createTask(baseDto));
+    }
+
+    @Test
+    @DisplayName("ќшибка при дедлайне с недопустимой датой (мес€ц > 12) и - вместо .")
+    void testCreateTask_InvalidMonthInDeadlineDashMacro_ThrowsException() {
+        baseDto.setTitle("!before 31-13-2025 Invalid month");
+        assertThrows(BadRequestException.class, () -> taskService.createTask(baseDto));
+    }
+
+    @Test
+    @DisplayName("ќшибка при дедлайне с недопустимой датой (день > 31)")
+    void testCreateTask_InvalidDayInDeadlineMacro_ThrowsException() {
+        baseDto.setTitle("!before 32.12.2025 Invalid day");
+        assertThrows(BadRequestException.class, () -> taskService.createTask(baseDto));
+    }
+
+    @Test
+    @DisplayName("ќшибка при дедлайне с недопустимой датой (день > 31) и - вместо .")
+    void testCreateTask_InvalidDayInDeadlineDashMacro_ThrowsException() {
+        baseDto.setTitle("!before 32-12-2025 Invalid day");
+        assertThrows(BadRequestException.class, () -> taskService.createTask(baseDto));
+    }
+
+    @Test
+    @DisplayName("ќшибка при дате с нул€ми (00.00.0000)")
+    void testCreateTask_ZeroDateInMacro_ThrowsException() {
+        baseDto.setTitle("!before 00.00.0000 Zero date");
+        assertThrows(BadRequestException.class, () -> taskService.createTask(baseDto));
+    }
+
+    @Test
+    @DisplayName("ќшибка при дате с нул€ми (00.00.0000) и - вместо .")
+    void testCreateTask_ZeroDateInMacroDash_ThrowsException() {
+        baseDto.setTitle("!before 00-00-0000 Zero date");
+        assertThrows(BadRequestException.class, () -> taskService.createTask(baseDto));
+    }
+
+    @Test
+    @DisplayName("ќшибка при слишком ранней дате (например, 01.01.0000)")
+    void testCreateTask_TooEarlyDateInMacro_ThrowsException() {
+        baseDto.setTitle("!before 01.01.0000 Too early date");
+        assertThrows(BadRequestException.class, () -> taskService.createTask(baseDto));
+    }
+
+    @Test
+    @DisplayName("ќшибка при слишком ранней дате (например, 01.01.0000)  и - вместо .")
+    void testCreateTask_TooEarlyDateInMacroDash_ThrowsException() {
+        baseDto.setTitle("!before 01-01-0000 Too early date");
+        assertThrows(BadRequestException.class, () -> taskService.createTask(baseDto));
+    }
+
 
     @Test
     @DisplayName("явно заданный дедлайн перекрывает макрос")
@@ -452,6 +509,97 @@ class TaskServiceTest {
         assertNotNull(existingTask.getDeadline());
         verify(taskRepository).save(existingTask);
     }
+
+    @Test
+    @DisplayName("ќшибка при неверном формате дедлайна при обновлении задачи")
+    void testUpdateTask_InvalidDeadlineMacro_ThrowsException() {
+        updateTaskDTO.setTitle("!before 99.99.9999 Invalid date");
+
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(existingTask));
+
+        assertThrows(BadRequestException.class, () -> taskService.updateTask(taskId, updateTaskDTO));
+    }
+
+    @Test
+    @DisplayName("ќшибка при дедлайне с недопустимым мес€цем (13) при обновлении")
+    void testUpdateTask_InvalidMonthInDeadlineMacro_ThrowsException() {
+        updateTaskDTO.setTitle("!before 31.13.2025 Invalid month");
+
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(existingTask));
+
+        assertThrows(BadRequestException.class, () -> taskService.updateTask(taskId, updateTaskDTO));
+    }
+
+    @Test
+    @DisplayName("ќшибка при дедлайне с недопустимым мес€цем и дефисами при обновлении")
+    void testUpdateTask_InvalidMonthInDeadlineDashMacro_ThrowsException() {
+        updateTaskDTO.setTitle("!before 31-13-2025 Invalid month");
+
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(existingTask));
+
+        assertThrows(BadRequestException.class, () -> taskService.updateTask(taskId, updateTaskDTO));
+    }
+
+    @Test
+    @DisplayName("ќшибка при дедлайне с недопустимым днем (32) при обновлении")
+    void testUpdateTask_InvalidDayInDeadlineMacro_ThrowsException() {
+        updateTaskDTO.setTitle("!before 32.12.2025 Invalid day");
+
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(existingTask));
+
+        assertThrows(BadRequestException.class, () -> taskService.updateTask(taskId, updateTaskDTO));
+    }
+
+    @Test
+    @DisplayName("ќшибка при дедлайне с недопустимым днем и дефисами при обновлении")
+    void testUpdateTask_InvalidDayInDeadlineDashMacro_ThrowsException() {
+        updateTaskDTO.setTitle("!before 32-12-2025 Invalid day");
+
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(existingTask));
+
+        assertThrows(BadRequestException.class, () -> taskService.updateTask(taskId, updateTaskDTO));
+    }
+
+    @Test
+    @DisplayName("ќшибка при дате с нул€ми (00.00.0000) при обновлении")
+    void testUpdateTask_ZeroDateInMacro_ThrowsException() {
+        updateTaskDTO.setTitle("!before 00.00.0000 Zero date");
+
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(existingTask));
+
+        assertThrows(BadRequestException.class, () -> taskService.updateTask(taskId, updateTaskDTO));
+    }
+
+    @Test
+    @DisplayName("ќшибка при дате с нул€ми и дефисами (00-00-0000) при обновлении")
+    void testUpdateTask_ZeroDateInMacroDash_ThrowsException() {
+        updateTaskDTO.setTitle("!before 00-00-0000 Zero date");
+
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(existingTask));
+
+        assertThrows(BadRequestException.class, () -> taskService.updateTask(taskId, updateTaskDTO));
+    }
+
+    @Test
+    @DisplayName("ќшибка при слишком ранней дате (01.01.0000) при обновлении")
+    void testUpdateTask_TooEarlyDateInMacro_ThrowsException() {
+        updateTaskDTO.setTitle("!before 01.01.0000 Too early date");
+
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(existingTask));
+
+        assertThrows(BadRequestException.class, () -> taskService.updateTask(taskId, updateTaskDTO));
+    }
+
+    @Test
+    @DisplayName("ќшибка при слишком ранней дате с дефисами (01-01-0000) при обновлении")
+    void testUpdateTask_TooEarlyDateInMacroDash_ThrowsException() {
+        updateTaskDTO.setTitle("!before 01-01-0000 Too early date");
+
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(existingTask));
+
+        assertThrows(BadRequestException.class, () -> taskService.updateTask(taskId, updateTaskDTO));
+    }
+
 
     @ParameterizedTest
     @CsvSource({
