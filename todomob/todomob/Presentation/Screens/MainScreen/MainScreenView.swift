@@ -106,12 +106,14 @@ extension MainScreenView {
                          }
                      }
                      .buttonStyle(.plain)
+                     .accessibilityIdentifier("checkmarkButton")
 
                      VStack(alignment: .leading, spacing: 6) {
                          Text(task.title)
                              .font(.system(.title3, design: .rounded, weight: .semibold))
                              .foregroundColor(.primary)
                              .lineLimit(1)
+                             .accessibilityIdentifier("titleLabel")
 
                          if let description = task.description, !description.isEmpty {
                              Text(description)
@@ -143,6 +145,7 @@ extension MainScreenView {
                              RoundedRectangle(cornerRadius: 8)
                                  .stroke(Color.gray.opacity(0.2), lineWidth: 1)
                          )
+                         .accessibilityIdentifier("status")
                      Spacer()
                      Text(task.priority.localized)
                          .font(.system(.caption, design: .rounded, weight: .medium))
@@ -155,6 +158,7 @@ extension MainScreenView {
                              RoundedRectangle(cornerRadius: 8)
                                  .stroke(Color.gray.opacity(0.2), lineWidth: 1)
                          )
+                         .accessibilityIdentifier("priorityLabel")
                  }
 
                  VStack(alignment: .leading, spacing: 12) {
@@ -209,12 +213,14 @@ extension MainScreenView {
                         } label: {
                             Label("Удалить", systemImage: "trash")
                         }
+                        .accessibilityIdentifier("deleteButton")
                     }
             }
         }
         .refreshable {
             await viewModel.fetchTasks()
         }
+        .accessibilityIdentifier("TasksList")
     }
 
     private struct InfoBadge: View {

@@ -133,6 +133,7 @@ struct UpdateTaskScreenView: View {
         ))
         .font(.system(.body, design: .rounded))
         .accessibilityLabel("Установить дедлайн")
+        .accessibilityIdentifier("DeadlineToggle")
     }
 
     private var deadlineDatePicker: some View {

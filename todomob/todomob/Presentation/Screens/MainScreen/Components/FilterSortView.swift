@@ -71,12 +71,14 @@ struct FilterSortView: View {
                         }
                     }
                     .pickerStyle(.menu)
+                    .accessibilityIdentifier("SortFieldPicker")
 
                     Picker("Направление", selection: $viewModel.selectedSortDirection) {
                         Text("По убыванию").tag(SortDirection.desc)
                         Text("По возрастанию").tag(SortDirection.asc)
                     }
                     .pickerStyle(.menu)
+                    .accessibilityIdentifier("SortDirectionPicker")
                 }
             }
             .navigationTitle("Фильтры")

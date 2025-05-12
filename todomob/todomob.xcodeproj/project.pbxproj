@@ -10,14 +10,30 @@
 		E6063DC82DC7F19C0084AF2B /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = E6063DC72DC7F19C0084AF2B /* Alamofire */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		E66751DF2DD13AE50081DA81 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E6063D8E2DC7EC7B0084AF2B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E6063D952DC7EC7B0084AF2B;
+			remoteInfo = todomob;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		E6063D962DC7EC7B0084AF2B /* todomob.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = todomob.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E66751D92DD13AE50081DA81 /* todomobUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = todomobUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		E6063D982DC7EC7B0084AF2B /* todomob */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = todomob;
+			sourceTree = "<group>";
+		};
+		E66751DA2DD13AE50081DA81 /* todomobUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = todomobUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -31,6 +47,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E66751D62DD13AE50081DA81 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -38,6 +61,7 @@
 			isa = PBXGroup;
 			children = (
 				E6063D982DC7EC7B0084AF2B /* todomob */,
+				E66751DA2DD13AE50081DA81 /* todomobUITests */,
 				E6063D972DC7EC7B0084AF2B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -46,6 +70,7 @@
 			isa = PBXGroup;
 			children = (
 				E6063D962DC7EC7B0084AF2B /* todomob.app */,
+				E66751D92DD13AE50081DA81 /* todomobUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -76,6 +101,29 @@
 			productReference = E6063D962DC7EC7B0084AF2B /* todomob.app */;
 			productType = "com.apple.product-type.application";
 		};
+		E66751D82DD13AE50081DA81 /* todomobUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E66751E32DD13AE50081DA81 /* Build configuration list for PBXNativeTarget "todomobUITests" */;
+			buildPhases = (
+				E66751D52DD13AE50081DA81 /* Sources */,
+				E66751D62DD13AE50081DA81 /* Frameworks */,
+				E66751D72DD13AE50081DA81 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E66751E02DD13AE50081DA81 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				E66751DA2DD13AE50081DA81 /* todomobUITests */,
+			);
+			name = todomobUITests;
+			packageProductDependencies = (
+			);
+			productName = todomobUITests;
+			productReference = E66751D92DD13AE50081DA81 /* todomobUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -88,6 +136,10 @@
 				TargetAttributes = {
 					E6063D952DC7EC7B0084AF2B = {
 						CreatedOnToolsVersion = 16.2;
+					};
+					E66751D82DD13AE50081DA81 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = E6063D952DC7EC7B0084AF2B;
 					};
 				};
 			};
@@ -109,12 +161,20 @@
 			projectRoot = "";
 			targets = (
 				E6063D952DC7EC7B0084AF2B /* todomob */,
+				E66751D82DD13AE50081DA81 /* todomobUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		E6063D942DC7EC7B0084AF2B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E66751D72DD13AE50081DA81 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -131,7 +191,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E66751D52DD13AE50081DA81 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E66751E02DD13AE50081DA81 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E6063D952DC7EC7B0084AF2B /* todomob */;
+			targetProxy = E66751DF2DD13AE50081DA81 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		E6063DA22DC7EC7C0084AF2B /* Debug */ = {
@@ -317,6 +392,40 @@
 			};
 			name = Release;
 		};
+		E66751E12DD13AE50081DA81 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = T77L9FD3JY;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ru.icodelessons.todomobUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = todomob;
+			};
+			name = Debug;
+		};
+		E66751E22DD13AE50081DA81 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = T77L9FD3JY;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ru.icodelessons.todomobUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = todomob;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -334,6 +443,15 @@
 			buildConfigurations = (
 				E6063DA52DC7EC7C0084AF2B /* Debug */,
 				E6063DA62DC7EC7C0084AF2B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E66751E32DD13AE50081DA81 /* Build configuration list for PBXNativeTarget "todomobUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E66751E12DD13AE50081DA81 /* Debug */,
+				E66751E22DD13AE50081DA81 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

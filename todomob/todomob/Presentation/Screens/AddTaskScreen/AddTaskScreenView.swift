@@ -41,12 +41,14 @@ struct AddTaskScreenView: View {
                     .pickerStyle(.menu)
                     .font(.system(.body, design: .rounded))
                     .accessibilityLabel("Выбор приоритета")
+                    .accessibilityIdentifier("PriorityPicker")
                 }
 
                 Section(header: Text("Дедлайн")) {
                     Toggle("Установить дедлайн", isOn: $viewModel.isShowingDeadline)
                         .font(.system(.body, design: .rounded))
                         .accessibilityLabel("Установить дедлайн")
+                        .accessibilityIdentifier("DeadlineToggle")
 
                     if viewModel.isShowingDeadline {
                         DatePicker(
@@ -93,6 +95,12 @@ struct AddTaskScreenView: View {
                     dismissButton: .default(Text("OK"))
                 )
             }
+            .gesture(
+                TapGesture()
+                    .onEnded { _ in
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    }
+            )
         }
     }
 }
