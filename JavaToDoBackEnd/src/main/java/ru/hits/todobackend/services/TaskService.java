@@ -17,6 +17,9 @@ import ru.hits.todobackend.exception.BadRequestException;
 import ru.hits.todobackend.exception.NotFoundException;
 import ru.hits.todobackend.repository.TaskRepository;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -33,8 +36,11 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class TaskService {
-    //update
     private final TaskRepository taskRepository;
+
+    // Добавлено для SQL-инъекции
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private static class TitleMacroResult {
         String cleanedTitle;
@@ -52,6 +58,13 @@ public class TaskService {
         String cleanedTitle = title;
         Priority macroPriority = null;
         OffsetDateTime macroDeadline = null;
+
+        // Уязвимость 2: Небезопасная обработка пользовательского ввода
+        // Искусственно добавляем небезопасный код, который не экранирует ввод
+        if (title != null && title.contains("<script")) {
+            // SonarQube отметит это как потенциальную XSS-уязвимость
+            cleanedTitle = title; // Не экранируем потенциально опасный ввод
+        }
 
         Pattern priorityPattern = Pattern.compile("!1|!2|!3|!4");
         Pattern deadlinePattern = Pattern.compile("!before\\s+(\\d{2}[.-]\\d{2}[.-]\\d{4})");
@@ -232,8 +245,6 @@ public class TaskService {
         taskRepository.save(task);
     }
 
-
-
     public void deleteTask(UUID id) {
         if (!taskRepository.existsById(id)) {
             throw new NotFoundException("Task not found with id: " + id);
@@ -249,6 +260,17 @@ public class TaskService {
             SortField sortBy,
             SortDirection direction
     ) {
+        // Уязвимость 1: Потенциальная SQL-инъекция
+        // Искусственно добавляем небезопасный SQL-запрос
+        if (status != null) {
+            String unsafeQuery = "SELECT t FROM Task t WHERE t.status = '" + status.toString() + "'";
+            Query query = entityManager.createQuery(unsafeQuery); // SonarQube отметит это как уязвимость
+            List<Task> tasks = query.getResultList();
+            return tasks.stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
+        }
+
         Sort sort = createSort(sortBy, direction);
 
         Specification<Task> spec = buildSpecification(
@@ -300,6 +322,4 @@ public class TaskService {
         dto.setUpdatedAt(entity.getUpdatedAt());
         return dto;
     }
-
-
 }
