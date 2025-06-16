@@ -17,9 +17,9 @@ import ru.hits.todobackend.exception.BadRequestException;
 import ru.hits.todobackend.exception.NotFoundException;
 import ru.hits.todobackend.repository.TaskRepository;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
